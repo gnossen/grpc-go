@@ -29,6 +29,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 	testpb "google.golang.org/grpc/benchmark/grpc_testing"
@@ -86,6 +87,7 @@ func (s *testServer) StreamingCall(stream testpb.BenchmarkService_StreamingCallS
 			return err
 		}
 		setPayload(response.Payload, in.ResponseType, int(in.ResponseSize))
+		time.Sleep(100 * time.Millsecond)
 		if err := stream.Send(response); err != nil {
 			return err
 		}
@@ -124,6 +126,7 @@ func (s *testServer) UnconstrainedStreamingCall(stream testpb.BenchmarkService_U
 
 	go func() {
 		for {
+			time.Sleep(100 * time.Millsecond)
 			err := stream.Send(response)
 			switch status.Code(err) {
 			case codes.Unavailable:
@@ -161,6 +164,7 @@ func (s *byteBufServer) StreamingCall(stream testpb.BenchmarkService_StreamingCa
 			return err
 		}
 		out := make([]byte, s.respSize)
+		time.Sleep(100 * time.Millsecond)
 		if err := stream.(grpc.ServerStream).SendMsg(&out); err != nil {
 			return err
 		}
@@ -178,6 +182,7 @@ func (s *byteBufServer) UnconstrainedStreamingCall(stream testpb.BenchmarkServic
 			return err
 		}
 		out := make([]byte, s.respSize)
+		time.Sleep(100 * time.Millsecond)
 		if err := stream.(grpc.ServerStream).SendMsg(&out); err != nil {
 			return err
 		}
